@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+    <!--配置懒加载的-->
+    <settings>
+        <!--开启延迟加载功能-->
+        <setting name="lazyLoadingEnabled" value="true"/>
+        <!--设置延迟加载的触发方法-->
+        <setting name="lazyLoadTriggerMethods" value="clone"/>
+        <!--设置不要积极的去查询关联对象-->
+        <setting name="aggressiveLazyLoading" value="false"/>
+
+    </settings>
+
+    <!--配置PageHelper分页插件-->
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <property name="helperDialect" value="mysql"/>
+            <property name="pageSizeZero" value="true"/>
+            <property name="reasonable" value="true"/>
+        </plugin>
+    </plugins>
+
+</configuration>
+

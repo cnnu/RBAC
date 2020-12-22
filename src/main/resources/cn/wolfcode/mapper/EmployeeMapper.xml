@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wolfcode.mapper.EmployeeMapper">
+    <resultMap id="baseMap" type="cn.wolfcode.domain.Employee">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="email" property="email"/>
+        <result column="password" property="password"/>
+        <result column="age" property="age"/>
+        <result column="admin" property="admin"/>
+        <!--处理对象映射      封装一个对象的时候-->
+        <association property="dept" javaType="cn.wolfcode.domain.Department">
+            <id column="d_id" property="id"/>
+            <result column="d_name" property="name"/>
+        </association>
+        <!--发送额外SQL
+            column表示发送额外SQL传入的条件-->
+        <collection property="roles" ofType="cn.wolfcode.domain.Role"
+            select="cn.wolfcode.mapper.RoleMapper.findByEmpId" column="id"/>
+    </resultMap>
+    <!--动态SQL-->
+    <select id="listAll" resultMap="baseMap">
+        SELECT e.id,e.name,e.email,e.password,e.age,e.admin,d.id d_id,d.name d_name FROM employee e LEFT JOIN department d on d.id = e.dept_id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (e.name LIKE concat('%',#{keyword},'%') OR e.email LIKE concat('%',#{keyword},'%'))
+            </if>
+            <choose>
+                <when test="deptId > -1">
+                    AND e.dept_id = #{deptId}
+                </when>
+                <otherwise >
+                    and e.dept_id is not null
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <delete id="deleteById">
+        DELETE FROM employee WHERE id = #{id}
+    </delete>
+    <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+        INSERT INTO employee(name,password,email,age,admin,dept_id) VALUE (#{name},#{password},#{email},#{age},#{admin},#{dept.id})
+    </insert>
+
+    <update id="updateById" >
+        UPDATE employee SET name = #{name},email = #{email},age = #{age},admin = #{admin},dept_id = #{dept.id} WHERE id = #{id}
+    </update>
+
+    <select id="findById" resultMap="baseMap">
+       SELECT e.id,e.name,e.email,e.password,e.age,e.admin,d.id d_id,d.name d_name FROM employee e LEFT JOIN department d on d.id = e.dept_id WHERE e.id = #{id}
+    </select>
+
+    <delete id="deleteRelation">
+        DELETE  FROM employee_role WHERE employee_id = #{id}
+    </delete>
+
+    <insert id="insertRelation">
+        INSERT INTO employee_role(employee_id,role_id) VALUE (#{empId},#{roleId})
+    </insert>
+    <select id="selectEmpByUsernameAndPassword" resultType="cn.wolfcode.domain.Employee">
+        SELECT * FROM employee WHERE name = #{username} and password = #{password}
+    </select>
+
+    <select id="findByRoleId" resultType="cn.wolfcode.domain.Employee">
+        SELECT * FROM employee e JOIN employee_role er ON e.id = er.employee_id WHERE er.role_id = 12
+    </select>
+</mapper>
+

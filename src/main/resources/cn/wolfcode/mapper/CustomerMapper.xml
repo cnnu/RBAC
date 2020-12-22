@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="cn.wolfcode.mapper.CustomerMapper">
+    <resultMap id="baseMap" type="cn.wolfcode.domain.Customer">
+        <id  column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="age" property="age" />
+        <result column="gender" property="genderStr" />
+        <result column="tel" property="tel" />
+        <result column="qq" property="qq" />
+        <result column="input_time" property="input_time" />
+        <result column="status" property="statusStr" />
+        <association property="seller" javaType="cn.wolfcode.domain.Employee">
+            <id  column="seller_id" property="id" />
+            <result column="seller_name" property="name" />
+        </association>
+        <association property="job" javaType="cn.wolfcode.domain.Job">
+            <id  column="job_id" property="id" />
+            <result column="job_title" property="title" />
+        </association>
+        <association property="source" javaType="cn.wolfcode.domain.Source">
+            <id  column="source_id" property="id" />
+            <result column="source_title" property="title" />
+        </association>
+    </resultMap>
+
+    <!--<select id="findAll" resultMap="baseMap">-->
+        <!--select c.id,c.name,c.age,c.tel,c.qq,-->
+        <!--c.job_id job_id,s1.title job_title,c.source_id source_id,s2.title source_title,-->
+        <!--c.seller_id ,e.name seller_name,c.status,-->
+        <!--CASE gender-->
+        <!--WHEN '0' THEN-->
+        <!--'男'-->
+        <!--ELSE-->
+        <!--'女'-->
+        <!--END as gender-->
+        <!--from customer c-->
+        <!--LEFT JOIN employee e ON c.seller_id = e.id-->
+        <!--LEFT JOIN systemdictionaryitem s1 ON   c.job_id  =s1.id-->
+        <!--LEFT JOIN systemdictionaryitem s2 ON c.source_id = s2.id-->
+        <!--<where>-->
+            <!--<if test="keyword != null and keyword != ''">-->
+                <!--AND (c.name LIKE concat('%',#{keyword},'%') OR c.tel LIKE concat('%',#{keyword},'%'))-->
+            <!--</if>-->
+            <!--<choose>-->
+                <!--<when test="status > -1">-->
+                    <!--AND c.status = #{status}-->
+                <!--</when>-->
+                <!--<otherwise >-->
+                    <!--and c.status is not null-->
+                <!--</otherwise>-->
+            <!--</choose>-->
+            <!--<choose>-->
+                <!--<when test="sellerId > -1">-->
+                    <!--AND c.seller_id = #{sellerId}-->
+                <!--</when>-->
+                <!--<otherwise >-->
+                    <!--and c.seller_id is not null-->
+                <!--</otherwise>-->
+            <!--</choose>-->
+        <!--</where>-->
+    <!--</select>-->
+    <select id="findAll" resultMap="baseMap">
+        select c.id,c.name,c.age,c.tel,c.qq,
+        c.job_id job_id,s1.title job_title,c.source_id source_id,s2.title source_title,
+        c.seller_id ,e.name seller_name,
+        CASE gender
+        WHEN '0' THEN
+        '男'
+        ELSE
+        '女'
+        END as gender,
+        CASE c.status
+        WHEN '0' THEN
+        '潜在客户'
+        WHEN '1' THEN
+        '正式客户'
+        WHEN '2' THEN
+        '资源池客户'
+        WHEN '3' THEN
+        '失败客户'
+        WHEN '4' THEN
+        '流失客户'
+        END as status
+        from customer c
+        LEFT JOIN employee e ON c.seller_id = e.id
+        LEFT JOIN systemdictionaryitem s1 ON   c.job_id  =s1.id
+        LEFT JOIN systemdictionaryitem s2 ON c.source_id = s2.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (c.name LIKE concat('%',#{keyword},'%') OR c.tel LIKE concat('%',#{keyword},'%'))
+            </if>
+            <choose>
+                <when test="status > -1">
+                    AND c.status = #{status}
+                </when>
+                <otherwise >
+                    and c.status is not null
+                </otherwise>
+            </choose>
+            <choose>
+                <when test="sellerId > -1">
+                    AND c.seller_id = #{sellerId}
+                </when>
+                <otherwise >
+                    and c.seller_id is not null
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+
+    <select id="findByStatus" resultMap="baseMap">
+        select c.id,c.name,c.age,c.tel,c.qq,
+        c.job_id job_id,s1.title job_title,c.source_id source_id,s2.title source_title,
+        c.seller_id ,e.name seller_name, c.input_time,
+        CASE gender
+        WHEN '0' THEN
+        '男'
+        ELSE
+        '女'
+        END as gender,
+        CASE c.status
+        WHEN '0' THEN
+        '潜在客户'
+        WHEN '1' THEN
+        '正式客户'
+        WHEN '2' THEN
+        '资源池客户'
+        WHEN '3' THEN
+        '失败客户'
+        WHEN '4' THEN
+        '流失客户'
+        END as status
+        from customer c
+        LEFT JOIN employee e ON c.seller_id = e.id
+        LEFT JOIN systemdictionaryitem s1 ON   c.job_id  =s1.id
+        LEFT JOIN systemdictionaryitem s2 ON c.source_id = s2.id
+        <where>
+            <if test="keyword != null and keyword != ''">
+                AND (c.name LIKE concat('%',#{keyword},'%') OR c.tel LIKE concat('%',#{keyword},'%'))
+            </if>
+
+            <choose>
+                <when test="sellerId > -1">
+                    AND c.seller_id = #{sellerId}
+                </when>
+                <otherwise >
+                    and c.seller_id is not null
+                </otherwise>
+            </choose>
+            AND c.status = #{status}
+        </where>
+    </select>
+
+
+
+</mapper>
